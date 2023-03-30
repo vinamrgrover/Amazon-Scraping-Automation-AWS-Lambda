@@ -13,11 +13,14 @@ The script uses Pushover Notification Service to send the top 5 shoes informatio
 
 The notification includes the following information for each of the top 5 shoes:
 
-Product Name
-Price
-Rating
-Number of Reviews
++ Product Name
++ Price
++ Rating
++ Number of Reviews
+
 Here is a screenshot of the notification:
+
+<img width="808" alt="Screenshot 2023-03-31 at 12 18 42 AM" src="https://user-images.githubusercontent.com/100070155/228935144-bd4bfb04-f606-498e-a237-e5716554204a.png">
 
 
 

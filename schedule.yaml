@@ -1,4 +1,0 @@
-jobs:
-  - name: automation
-    schedule: "0 7,19 * * *"
-    command: "python main.py"

@@ -18,13 +18,7 @@ headers = [
   }
 ]
 
-url = 'https://www.amazon.in/s?k=nike+shoes&crid=29X54TW284P32&sprefix=nike+shoe%2Caps%2C278&ref=nb_sb_noss_1'
-												
-response = requests.get(url, headers = random.choice(headers))
-
-soup = BeautifulSoup(response.content, 'html.parser')
-
-def get_pages(soup : BeautifulSoup) -> list:
+def get_pages(soup : BeautifulSoup, url : str) -> list:
     span = soup.find('span', {'class' : 's-pagination-strip'})
     last = span.find('span', {'class' : 's-pagination-item s-pagination-disabled'})
     num = int(last.text.strip())
@@ -33,8 +27,6 @@ def get_pages(soup : BeautifulSoup) -> list:
     links = [link.format(str(x)) for x in range(1, num + 1)]
     
     return links
-
-pages = get_pages(soup)
 
 def scrape_data(pages):
     data = {
@@ -65,8 +57,8 @@ def scrape_data(pages):
         soup = BeautifulSoup(response.content, 'html.parser')
         
         grid = soup.find('div', {'class' :  's-main-slot s-result-list s-search-results sg-row'})
-        cols = grid.find_all('div', {'class' : 's-card-container s-overflow-hidden aok-relative puis-expand-height puis-include-content-margin puis s-latency-cf-section s-card-border'})
-        
+        cols = grid.find_all('div', {'data-component-type' : 's-search-result'})
+
         for col in cols:
             try:
                 brand = col.find('h5', {'class' : 's-line-clamp-1'}).text.strip()
@@ -158,7 +150,8 @@ def gen_text(df : pd.DataFrame) -> str: # Generating formatted text for Notifica
     return text
 
 def send_ntf(text : str):
-  
+
+
     title = 'AMAZON NIKE SCRAPER'
 
     resp = requests.post(
@@ -170,14 +163,24 @@ def send_ntf(text : str):
             'title' : title
         }
     )
+                                                     
+def lambda_handler(event = None, context = None): 
+    url = 'https://www.amazon.in/s?k=nike+shoes&crid=29X54TW284P32&sprefix=nike+shoe%2Caps%2C278&ref=nb_sb_noss_1'
 
-df = scrape_data(pages)
+    while True:
+        try:
+            response = requests.get(url, headers = random.choice(headers))
+            response.raise_for_status()
+            if response.status_code == 200:
+                break
+        except HTTPError:
+            pass
 
-text = gen_text(df)
+    soup = BeautifulSoup(response.content, 'html.parser')
 
-with open('shoe_data.txt', 'w') as file:
-  file.write(text)
-  file.close()
+    pages = get_pages(soup, url)
+    df = scrape_data(pages)
+    text = gen_text(df)
 
-send_ntf(text)
+    send_ntf(text)
 

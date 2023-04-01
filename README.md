@@ -1,11 +1,25 @@
 # Amazon Nike Shoes Web Scraper
 
 ## Description
-This is a personal portfolio project that showcases my skills in web scraping and data processing using Python. This project scrapes Nike Shoes products from Amazon's multiple pages, processes the data using pandas, selects the top 5 shoes by price, rating, and reviews, and sends the data as a text message through the Pushover Notification Service. The process is automated to run at 7AM and 7PM every day on replit.com.
+This project is a Python-based web scraping project that extracts Nike Shoes data from Amazon's multiple pages and processes it with Pandas. 
+
+The top 5 shoes are then selected based on their price, rating, and reviews. Finally, the data is sent as text through the Pushover Notification Service's api. 
 
 ## Automation
-Added the schedule.yaml to the root folder of repl. This would automate the process to run the script on 7AM and 7PM everyday. The cron syntax is as follows:
-`0 7,19 * * *`
+
+The Python script runs on AWS Lambda, and a CloudWatch Event Trigger is set up to automate the process to run at 7AM and 7PM every day.
+
+I have created a CloudWatch Event Trigger which invokes the Lambda Function "Nike Scraper". 
+The `lambda_handler` is the Handler Method and it's also invoked by AWS Lambda. 
+
+The Cron Expression for the Trigger is `30,30 1,13 * * ? *`
+
+Here's a screenshot of the Function Overview
+
+<img width="694" alt="Screenshot 2023-04-01 at 7 25 48 PM" src="https://user-images.githubusercontent.com/100070155/229293415-1bfd2b6b-4f2a-462b-8d99-d5fff0bbce73.png">
+
+
+
 
 ## Notification
 

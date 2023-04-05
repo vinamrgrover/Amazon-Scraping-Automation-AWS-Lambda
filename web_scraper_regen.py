@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import re, random
 import pandas as pd
 from requests.exceptions import HTTPError
+import boto3
 
 headers = [
   {
@@ -134,9 +135,9 @@ def gen_text(df : pd.DataFrame) -> str: # Generating formatted text for Notifica
     sorted_df.reset_index(inplace = True, drop = True)
     
     sorted_df.drop(columns = ['Reviews', 'Gender'], inplace = True)
-    sorted_df = sorted_df.head()
   
     info = [x[1:] for x in sorted_df.itertuples()]
+    sorted_df.drop_duplicates(['Name'], inplace = True)
     
     text = ''
     for name, price, rating, link in info:
@@ -149,21 +150,19 @@ def gen_text(df : pd.DataFrame) -> str: # Generating formatted text for Notifica
         
     return text
 
-def send_ntf(text : str):
 
-
-    title = 'AMAZON NIKE SCRAPER'
-
-    resp = requests.post(
-        'https://api.pushover.net/1/messages.json', 
-        data = {
-            'token' : os.environ['api_key'],  
-            'user' : os.environ['user_key'], 
-            'message' : text, 
-            'title' : title
-        }
+def sns_publish(message : str):
+    sns = boto3.client('sns')
+    
+    topic_arn = 'arn:aws:sns:ap-south-1:358867544823:filtered_shoes'
+    response = sns.publish(
+        TopicArn = topic_arn, 
+        Message = message
     )
-                                                     
+    
+    return response
+
+
 def lambda_handler(event = None, context = None): 
     url = 'https://www.amazon.in/s?k=nike+shoes&crid=29X54TW284P32&sprefix=nike+shoe%2Caps%2C278&ref=nb_sb_noss_1'
 
@@ -182,5 +181,4 @@ def lambda_handler(event = None, context = None):
     df = scrape_data(pages)
     text = gen_text(df)
 
-    send_ntf(text)
-
+    sns_publish(text)
